@@ -103,4 +103,34 @@ class Product
             return false;
         }
     }
+
+    public function findById(int $productId): bool
+    {
+        $sql = "SELECT * FROM products WHERE id = :id";
+        $data = $this->db->fetchOne($sql, ['id' => $productId]);
+
+        if ($data) {
+            $this->hydrate($data);
+            return true;
+        }
+        return false;
+    }
+
+    public function getAllProducts(): array
+    {
+        $sql = "SELECT id, name, description, price, stock FROM products ORDER BY name ASC";
+        // The query() method in Database.php should return an array of products
+        return $this->db->query($sql) ?: [];
+    }
+
+    // Helper method to populate object properties
+    private function hydrate(array $data): void
+    {
+        $this->id = $data['id'] ?? null;
+        $this->name = $data['name'] ?? null;
+        $this->description = $data['description'] ?? null;
+        // Ensure price is treated as a float
+        $this->price = isset($data['price']) ? (float)$data['price'] : 0.0;
+        $this->stock = $data['stock'] ?? 0;
+    }
 }
